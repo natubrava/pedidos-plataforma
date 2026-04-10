@@ -12,6 +12,18 @@
     
     <!-- Bibliotecas Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--primary)',
+                        'primary-dark': 'var(--primary-dark)',
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -61,6 +73,11 @@
             overscroll-behavior-y: none;
         }
         
+        /* Utilitários Dinâmicos pro JS não quebrar Tema Escuro */
+        .texto-titulo { color: var(--text-main); }
+        .texto-secundario { color: var(--text-main); opacity: 0.7; }
+        .card-bg { background: rgba(255, 255, 255, 0.03); }
+
         .glass-header {
             background: var(--glass-bg);
             backdrop-filter: blur(15px);
@@ -99,13 +116,10 @@
             border-radius: 4px 4px 0 0;
         }
 
-        /* Botão de Sync Flutuante */
+        /* Botão de Sync */
         #sync-btn {
-            position: absolute;
-            right: 12px;
-            bottom: -20px;
-            z-index: 40;
             display: none;
+            transition: all 0.2s ease;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -184,26 +198,25 @@
             </div>
         </div>
 
-        <div class="w-full bg-black/5 flex px-2 h-12 items-center overflow-x-auto no-scrollbar relative">
-            <div id="tabs-container" class="max-w-3xl mx-auto flex h-full items-center">
+        <div class="w-full bg-black/5 flex px-2 h-12 items-center justify-between no-scrollbar relative max-w-3xl mx-auto">
+            <div id="tabs-container" class="flex h-full items-center pl-2">
                 <!-- Abas via JS -->
             </div>
         </div>
-
-        <!-- Botão de Sincronização do Mel -->
-        <button id="sync-btn" onclick="confirmarSyncMel()" class="bg-white text-primary text-[9px] font-black px-3 py-1.5 rounded-full shadow-lg border border-primary/20 flex items-center gap-2 hover:scale-105 transition-transform active:scale-95">
-            <i class="fa-solid fa-arrows-rotate"></i> SINCRONIZAR COM SISTEMA
-        </button>
     </header>
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto w-full max-w-3xl mx-auto bg-transparent relative">
-        <div class="sticky top-0 z-20 px-4 py-3 glass-header">
-            <div class="relative group">
+        <div class="sticky top-0 z-20 px-4 py-3 glass-header shadow-sm flex gap-2">
+            <div class="relative group flex-1">
                 <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors"></i>
                 <input type="text" id="searchInput" onkeyup="filtrarProdutos()" placeholder="Pesquisar no catálogo..." 
-                    class="w-full bg-slate-100/50 text-slate-800 text-sm font-semibold rounded-2xl pl-11 pr-4 py-3 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all border border-transparent focus:border-primary/20">
+                    class="w-full bg-slate-100/30 backdrop-blur-sm texto-titulo text-sm font-semibold rounded-2xl pl-11 pr-4 py-3 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all border border-slate-200/50 focus:border-primary/40 placeholder:text-slate-400">
             </div>
+            <!-- Botão de Sincronização em linha com a busca -->
+            <button id="sync-btn" onclick="confirmarSyncMel()" class="shrink-0 bg-primary hover:bg-primary-dark text-white shadow-md text-xs font-black px-4 rounded-2xl flex flex-col items-center justify-center transition-all active:scale-95">
+                <i class="fa-solid fa-arrows-rotate mb-0.5"></i> <span class="text-[8px] uppercase tracking-widest leading-none">Sync</span>
+            </button>
         </div>
 
         <div id="product-list" class="pb-36 bg-transparent">
