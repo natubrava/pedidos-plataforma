@@ -179,9 +179,14 @@
                         <div class="w-9 h-9 bg-white rounded-xl mx-2 flex items-center justify-center shrink-0 overflow-hidden shadow-sm border border-slate-100">${imgHtml}</div>
                         <div class="flex-1 min-w-0 pr-2">
                             <h3 class="text-[11px] font-black tracking-tight text-inherit truncate leading-tight">${p.nome}</h3>
-                            <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-[9px] font-black text-primary uppercase tracking-widest">${formatMoeda(fornecedorAtivo.slug === 'muller' ? (p.venda / 2) : p.venda)}</span>
-                                <span class="text-[8px] font-bold text-slate-400 opacity-60 uppercase">${formatMoeda(fornecedorAtivo.slug === 'muller' ? (p.custo / 2) : p.custo)} ${fornecedorAtivo.slug === 'muller' ? 'pcte 500g' : 'un'}</span>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="bg-amber-100/50 border border-amber-200 text-amber-700 text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm">Custo: ${formatMoeda(fornecedorAtivo.slug === 'muller' ? (p.custo / 2) : p.custo)}</span>
+                                <span class="text-[8px] font-bold text-slate-400 opacity-60 uppercase">${formatMoeda(fornecedorAtivo.slug === 'muller' ? (p.venda / 2) : p.venda)} ${fornecedorAtivo.slug === 'muller' ? 'pcte 500g' : 'un'}</span>
+                                ${p.codigo_uniplus ? (() => {
+                                    const c = uniplusCatalog.find(u => u.code == p.codigo_uniplus);
+                                    if(c) return `<span class="ml-auto text-[9px] ${c.stock > 0 ? 'text-green-500' : 'text-red-400'} font-black outline outline-1 outline-slate-200/50 px-1 rounded">Estoque: ${c.stock}</span>`;
+                                    return '';
+                                })() : ''}
                             </div>
                         </div>
                         <div class="flex items-center bg-slate-100/50 rounded-xl p-0.5 gap-0.5 border border-slate-200/50">
