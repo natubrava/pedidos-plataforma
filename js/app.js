@@ -41,6 +41,19 @@
         }
 
         // --- CATALOGO E BUSCA INTELIGENTE ---
+        function parseNumberBr(str) {
+            if (!str) return 0;
+            if (typeof str === 'number') return str;
+            let s = str.toString().trim();
+            if (s.indexOf(',') !== -1 && s.indexOf('.') !== -1) {
+                s = s.replace(/\./g, '').replace(',', '.');
+            } else if (s.indexOf(',') !== -1) {
+                s = s.replace(',', '.');
+            }
+            const parsed = parseFloat(s);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
         async function loadCatalog() {
             const cacheKey = 'uniplus_catalog_cache';
             const timeKey = 'uniplus_catalog_time';
@@ -61,12 +74,13 @@
                     header: false,
                     complete: (results) => {
                         const rawData = results.data;
-                        // Mapeamento: [0]=Código | [2]=Nome | [4]=Custo | [5]=Venda | [6]=Data (No Makrobom antigo era Img)
+                        // Mapeamento: [0]=Código | [2]=Nome | [3]=Estoque | [4]=Custo | [5]=Venda | [6]=Data (No Makrobom antigo era Img)
                         uniplusCatalog = rawData.slice(1)
                             .filter(row => row[2]) // Precisa ter nome
                             .map(row => ({
                                 code: row[0],
                                 name: row[2],
+                                stock: parseNumberBr(row[3]),
                                 cost: parseFloat(row[4]?.replace(',', '.')) || 0,
                                 sale: parseFloat(row[5]?.replace(',', '.')) || 0,
                                 img: (row[6] && !row[6].includes('/')) ? row[6] : '' // Previne que Datas quebrem a imagem
@@ -269,7 +283,13 @@
                     dd.innerHTML = filtered.map(r => `
                         <div class="fuzzy-item" onclick="selecionarParaAdd(${JSON.stringify(r.item).replace(/"/g, '&quot;')})">
                             <div class="text-[11px] font-black text-slate-800">${r.item.name}</div>
-                            <div class="text-[9px] text-slate-400 font-bold uppercase">Cód: ${r.item.code} • Custo: ${formatMoeda(r.item.cost)}</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="bg-amber-100/50 border border-amber-200 text-amber-700 text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">Custo: ${formatMoeda(r.item.cost)}</span>
+                                <span class="text-slate-400 text-[9px] font-semibold">Venda: ${formatMoeda(r.item.sale)}</span>
+                            </div>
+                            <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">
+                                Estoque: <span class="${r.item.stock > 0 ? 'text-green-600' : 'text-red-500'} font-black">${r.item.stock}</span> • Cód: ${r.item.code}
+                            </div>
                         </div>
                     `).join('');
                     dd.style.display = 'block';
