@@ -1,0 +1,10 @@
+# Git Ignore
+.DS_Store
+Thumbs.db
+*.log
+.env
+.agent/
+.agents/
+node_modules/
+dist/
+build/
