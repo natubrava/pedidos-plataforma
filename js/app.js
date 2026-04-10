@@ -110,9 +110,9 @@
             container.innerHTML = '';
             fornecedores.forEach(f => {
                 const btn = document.createElement('button');
-                btn.className = `tab-btn px-6 h-full text-[11px] font-black text-white/40 whitespace-nowrap transition-all uppercase tracking-widest flex items-center gap-2`;
+                btn.className = `tab-btn px-4 h-full rounded-xl text-[11px] font-black text-white/50 whitespace-nowrap transition-all uppercase tracking-widest flex items-center gap-2 border border-transparent flex-1 justify-center max-w-[140px]`;
                 btn.dataset.slug = f.slug;
-                btn.innerHTML = `<span class="text-sm">${f.icone}</span> ${f.nome_aba}`;
+                btn.innerHTML = `<span class="text-sm scale-110 drop-shadow-md">${f.icone}</span> ${f.nome_aba}`;
                 btn.onclick = () => selecionarFornecedor(f.slug);
                 container.appendChild(btn);
             });
@@ -125,15 +125,17 @@
             document.body.setAttribute('data-theme', slug);
             document.querySelectorAll('.tab-btn').forEach(b => {
                 const active = b.dataset.slug === slug;
-                b.classList.toggle('active', active);
-                b.classList.toggle('text-white', active);
-                b.classList.toggle('scale-105', active);
+                if (active) {
+                    b.classList.remove('text-white/50', 'border-transparent');
+                    b.classList.add('bg-white', 'text-primary', 'border-white/20', 'shadow-[0_10px_20px_-5px_rgba(0,0,0,0.3)]', 'scale-[1.02]', 'z-10');
+                } else {
+                    b.classList.remove('bg-white', 'text-primary', 'border-white/20', 'shadow-[0_10px_20px_-5px_rgba(0,0,0,0.3)]', 'scale-[1.02]', 'z-10');
+                    b.classList.add('text-white/50', 'border-transparent');
+                }
             });
 
             document.documentElement.style.setProperty('--primary', fornecedorAtivo.cor_primaria);
             document.documentElement.style.setProperty('--primary-dark', fornecedorAtivo.cor_secundaria);
-            document.getElementById('fornecedor-nome').innerText = fornecedorAtivo.nome;
-            document.getElementById('label-icone').innerText = fornecedorAtivo.icone;
             
             // Mostrar Botão de Sync apenas para fornecedores com filtro_planilha configurado
             document.getElementById('sync-btn').style.display = (fornecedorAtivo.filtro_planilha) ? 'flex' : 'none';

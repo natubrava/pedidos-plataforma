@@ -16,12 +16,12 @@
     --header-text: #451a03;
 }
 [data-theme="makrobom"] {
-    --primary: #C8860A; /* Dourado */
-    --primary-dark: #A06D08;
-    --bg-app: #1E0F08; /* Chocolate Dark */
-    --text-main: #f3f4f6;
-    --glass-bg: rgba(30, 15, 8, 0.85);
-    --header-text: #f9fafb;
+    --primary: #c2410c; /* Orange 700 elegante */
+    --primary-dark: #9a3412; /* Orange 800 */
+    --bg-app: #fffbf7; /* Fundo super claro, leve toque quente */
+    --text-main: #1f2937;
+    --glass-bg: rgba(255, 251, 247, 0.9);
+    --header-text: #ffffff;
 }
 [data-theme="muller"] {
     --primary: #D72B2B;
@@ -58,8 +58,8 @@ body {
     transition: all 0.2s ease;
 }
 [data-theme="makrobom"] .premium-card {
-    background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    background: rgba(0, 0, 0, 0.01);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
 }
 
 .active-item {
@@ -70,17 +70,6 @@ body {
 .tab-btn {
     position: relative;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.tab-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    height: 4px;
-    background: white;
-    border-radius: 4px 4px 0 0;
 }
 
 /* Botão de Sync */
