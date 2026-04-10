@@ -166,8 +166,8 @@
                         <div class="flex-1 min-w-0 pr-2">
                             <h3 class="text-[11px] font-black tracking-tight text-inherit truncate leading-tight">${p.nome}</h3>
                             <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-[9px] font-black text-primary uppercase tracking-widest">${formatMoeda(p.venda)}</span>
-                                <span class="text-[8px] font-bold text-slate-400 opacity-60 uppercase">${formatMoeda(p.custo)} un</span>
+                                <span class="text-[9px] font-black text-primary uppercase tracking-widest">${formatMoeda(fornecedorAtivo.slug === 'muller' ? (p.venda / 2) : p.venda)}</span>
+                                <span class="text-[8px] font-bold text-slate-400 opacity-60 uppercase">${formatMoeda(fornecedorAtivo.slug === 'muller' ? (p.custo / 2) : p.custo)} ${fornecedorAtivo.slug === 'muller' ? 'pcte 500g' : 'un'}</span>
                             </div>
                         </div>
                         <div class="flex items-center bg-slate-100/50 rounded-xl p-0.5 gap-0.5 border border-slate-200/50">
@@ -203,8 +203,10 @@
             const car = carrinhoGlobal[fornecedorAtivo.slug] || {};
             produtos.forEach(p => {
                 const q = car[p.id] || 0;
-                tc += (p.custo || 0) * q; 
-                tl += ((p.venda || 0) - (p.custo || 0)) * q;
+                const c = fornecedorAtivo.slug === 'muller' ? (p.custo || 0) / 2 : (p.custo || 0);
+                const v = fornecedorAtivo.slug === 'muller' ? (p.venda || 0) / 2 : (p.venda || 0);
+                tc += c * q; 
+                tl += (v - c) * q;
                 if (q > 0) it++;
             });
             document.getElementById('total-custo').innerText = formatMoeda(tc);
@@ -220,9 +222,14 @@
             produtos.forEach(p => { 
                 const q = car[p.id] || 0; 
                 if (q > 0) { 
-                    const s = p.custo * q; 
+                    const c = fornecedorAtivo.slug === 'muller' ? (p.custo || 0) / 2 : (p.custo || 0);
+                    const s = c * q; 
                     tp += s; 
-                    ip.push(`▪️ *${q}x* ${p.nome} = *${formatMoeda(s)}*`); 
+                    if (fornecedorAtivo.slug === 'muller') {
+                        ip.push(`▪️ *${q.toString().padStart(2, '0')} pctes 500gr* ${p.nome} = *${formatMoeda(s)}*`); 
+                    } else {
+                        ip.push(`▪️ *${q}x* ${p.nome} = *${formatMoeda(s)}*`); 
+                    }
                 } 
             });
             if (ip.length === 0) return;
@@ -604,12 +611,14 @@
             produtos.forEach(p => { 
                 const q = c[p.id] || 0; 
                 if (q > 0) { 
-                    const s = p.custo * q; t += s; 
+                    const custoUnid = fornecedorAtivo.slug === 'muller' ? (p.custo || 0) / 2 : (p.custo || 0);
+                    const s = custoUnid * q; t += s; 
+                    const rotuloUnid = fornecedorAtivo.slug === 'muller' ? 'pcte 500g' : 'un';
                     l.insertAdjacentHTML('beforeend', `
                         <div class="bg-white p-4 rounded-2xl border border-slate-100 mb-2 flex justify-between items-center shadow-sm">
                             <div class="flex-1">
                                 <h4 class="text-xs font-black text-slate-800 uppercase">${p.nome}</h4>
-                                <div class="text-[10px] text-slate-400 font-bold mt-0.5">${formatMoeda(p.custo)} /un</div>
+                                <div class="text-[10px] text-slate-400 font-bold mt-0.5">${formatMoeda(custoUnid)} /${rotuloUnid}</div>
                             </div>
                             <div class="text-right flex flex-col items-end gap-2">
                                 <span class="text-sm font-black text-slate-900">${formatMoeda(s)}</span>
