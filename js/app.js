@@ -1,5 +1,10 @@
         const CSV_URL = "https://docs.google.com/spreadsheets/d/10m3VsEwqsMYI5UfSxxa1tL208BYxBczlrstr4T-HJJI/export?format=csv&gid=711985533";
         const CLOUDINARY_BASE = "https://res.cloudinary.com/dzjpj67xw/image/upload/w_200,h_200,c_fit,q_auto,f_auto/";
+        
+        // --- CONSTANTES DE BANCO DE DADOS (SUPABASE) ---
+        const SUPABASE_URL = "https://qcxudhpaiqorriclcgyb.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjeHVkaHBhaXFvcnJpY2xjZ3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MTcxMTQsImV4cCI6MjA5MTM5MzExNH0.-B7DbaIXMEz3eqS3HQiH6L1O5NavPC3cyXNYgem7_yk";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let fornecedores = [];
         let produtos = [];
