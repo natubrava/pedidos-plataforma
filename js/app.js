@@ -55,8 +55,8 @@
         }
 
         async function loadCatalog() {
-            const cacheKey = 'uniplus_catalog_cache';
-            const timeKey = 'uniplus_catalog_time';
+            const cacheKey = 'uniplus_catalog_cache_v2';
+            const timeKey = 'uniplus_catalog_time_v2';
             const cache = localStorage.getItem(cacheKey);
             const time = localStorage.getItem(timeKey);
 
