@@ -32,29 +32,28 @@
 
     <!-- Cabeçalho Glass -->
     <header class="bg-primary text-[color:var(--header-text)] shrink-0 z-30 shadow-2xl transition-all duration-500 relative">
-        <div class="max-w-3xl mx-auto flex justify-between items-center px-4 h-12">
+        <div class="max-w-3xl mx-auto flex justify-between items-center px-3 h-10">
             <div class="flex items-center gap-3">
-                <div id="header-icon-bg" class="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center text-base shadow-inner backdrop-blur-md">
+                <div id="header-icon-bg" class="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center text-sm shadow-inner backdrop-blur-md">
                     <span id="label-icone">🐝</span>
                 </div>
                 <div class="leading-none">
-                    <h1 class="text-[9px] font-black uppercase tracking-[0.15em] opacity-60">CATÁLOGO DIGITAL</h1>
-                    <h2 id="fornecedor-nome" class="text-base font-black tracking-tight mt-0.5">Carregando...</h2>
+                    <h2 id="fornecedor-nome" class="text-sm font-black tracking-tight">Carregando...</h2>
                 </div>
             </div>
             
             <div class="flex items-center gap-2">
-                <button onclick="abrirConfiguracoes()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all text-sm">
+                <button onclick="abrirConfiguracoes()" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all text-xs">
                     <i class="fa-solid fa-sliders"></i>
                 </button>
-                <button onclick="limparTudo()" class="bg-white/10 hover:bg-white/20 px-3 h-8 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all">
+                <button onclick="limparTudo()" class="bg-white/10 hover:bg-white/20 px-2 h-7 rounded-lg text-[8px] font-black tracking-widest uppercase transition-all">
                     LIMPAR
                 </button>
             </div>
         </div>
 
-        <div class="w-full bg-black/5 flex px-2 h-10 items-center justify-between no-scrollbar relative max-w-3xl mx-auto">
-            <div id="tabs-container" class="flex h-full items-center pl-2">
+        <div class="w-full bg-black/5 flex px-2 h-8 items-center justify-between no-scrollbar relative max-w-3xl mx-auto">
+            <div id="tabs-container" class="flex h-full items-center pl-1">
                 <!-- Abas via JS -->
             </div>
         </div>
@@ -62,44 +61,43 @@
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto w-full max-w-3xl mx-auto bg-transparent relative">
-        <div class="sticky top-0 z-20 px-4 py-2 glass-header shadow-sm flex gap-2">
+        <div class="sticky top-0 z-20 px-3 py-1.5 glass-header shadow-sm flex gap-2">
             <div class="relative group flex-1">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors"></i>
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs group-focus-within:text-primary transition-colors"></i>
                 <input type="text" id="searchInput" onkeyup="filtrarProdutos()" placeholder="Pesquisar no catálogo..." 
-                    class="w-full bg-slate-100/30 backdrop-blur-sm texto-titulo text-sm font-semibold rounded-2xl pl-10 pr-4 py-2 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all border border-slate-200/50 focus:border-primary/40 placeholder:text-slate-400">
+                    class="w-full bg-slate-100/30 backdrop-blur-sm texto-titulo text-xs font-semibold rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all border border-slate-200/50 focus:border-primary/40 placeholder:text-slate-400">
             </div>
-            <!-- Botão de Sincronização em linha com a busca -->
-            <button id="sync-btn" onclick="confirmarSyncMel()" class="shrink-0 bg-primary hover:bg-primary-dark text-[color:var(--header-text)] shadow-md text-xs font-black px-3 rounded-2xl flex flex-col items-center justify-center transition-all active:scale-95">
+            <button id="sync-btn" onclick="confirmarSync()" class="shrink-0 bg-primary hover:bg-primary-dark text-[color:var(--header-text)] shadow-md text-xs font-black px-3 rounded-xl flex flex-col items-center justify-center transition-all active:scale-95">
                 <i class="fa-solid fa-arrows-rotate mb-0.5"></i> <span class="text-[8px] uppercase tracking-widest leading-none">Sync</span>
             </button>
         </div>
 
-        <div id="product-list" class="pb-36 bg-transparent">
+        <div id="product-list" class="pb-24 bg-transparent">
             <!-- Produtos via JS -->
         </div>
     </main>
 
     <!-- Rodapé Premium -->
     <footer class="bg-white/80 backdrop-blur-xl shrink-0 z-30 w-full fixed bottom-0 border-t border-slate-200/50 pb-safe">
-        <div class="max-w-3xl mx-auto px-4 py-2">
-            <div class="flex items-center gap-3">
-                <div class="flex flex-col flex-1 pb-1">
-                    <div class="flex justify-between items-baseline mb-0.5">
-                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest block">CUSTO</span>
-                        <span id="total-custo" class="text-sm font-black text-slate-900 leading-none">R$ 0,00</span>
+        <div class="max-w-3xl mx-auto px-3 py-1.5">
+            <div class="flex items-center gap-2">
+                <div class="flex flex-col flex-1">
+                    <div class="flex justify-between items-baseline">
+                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">CUSTO</span>
+                        <span id="total-custo" class="text-xs font-black text-slate-900 leading-none">R$ 0,00</span>
                     </div>
                     <div class="flex justify-between items-baseline">
-                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest block">LUCRO</span>
-                        <span id="total-lucro" class="text-sm font-black text-green-600 leading-none">R$ 0,00</span>
+                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">LUCRO</span>
+                        <span id="total-lucro" class="text-xs font-black text-green-600 leading-none">R$ 0,00</span>
                     </div>
                 </div>
                 
-                <button onclick="abrirCarrinho()" class="flex-[1.5] bg-slate-900 hover:bg-black text-white font-black h-12 rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.15)] flex items-center justify-between px-4 transition-all active:scale-[0.98]">
+                <button onclick="abrirCarrinho()" class="flex-[1.5] bg-slate-900 hover:bg-black text-white font-black h-10 rounded-xl shadow-lg flex items-center justify-between px-3 transition-all active:scale-[0.98]">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-shopping-bag text-sm"></i>
-                        <span id="btn-revisar-text" class="tracking-tight text-xs truncate">ENVIAR</span>
+                        <span id="btn-revisar-text" class="tracking-tight text-[11px] truncate">ENVIAR</span>
                     </div>
-                    <span id="badge-carrinho" class="bg-primary text-white text-[10px] font-black w-6 h-6 rounded-lg flex items-center justify-center hidden">0</span>
+                    <span id="badge-carrinho" class="bg-primary text-white text-[9px] font-black w-5 h-5 rounded-md flex items-center justify-center hidden">0</span>
                 </button>
             </div>
         </div>
@@ -201,20 +199,33 @@
         </div>
     </div>
 
-    <!-- Modal Confirmação Sync Mel -->
+    <!-- Modal Confirmação Sync -->
     <div id="modal-confirm-sync" class="fixed inset-0 bg-slate-900/60 z-[70] hidden opacity-0 transition-all p-4 backdrop-blur-md flex items-center justify-center">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl p-8 text-center flex flex-col gap-6">
-            <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-3xl flex items-center justify-center text-4xl mx-auto shadow-inner">
+            <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-inner">
                 <i class="fa-solid fa-arrows-rotate"></i>
             </div>
             <div>
-                <h3 class="text-xl font-black text-slate-900 tracking-tight leading-tight">SINCRONIZAR PREÇOS DO MEL?</h3>
-                <p class="text-xs font-medium text-slate-500 mt-3 leading-relaxed">Isso atualizará os **Preços de Custo e Venda** de todos os itens do Mel JC Bees baseados na sua planilha Uniplus.</p>
+                <h3 id="sync-confirm-title" class="text-lg font-black text-slate-900 tracking-tight leading-tight">SINCRONIZAR?</h3>
+                <p id="sync-confirm-desc" class="text-xs font-medium text-slate-500 mt-3 leading-relaxed">Atualizar preços e buscar novos produtos na planilha Uniplus.</p>
             </div>
             <div class="grid grid-cols-2 gap-3">
-                <button onclick="fecharConfirmSync()" class="h-14 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black rounded-2xl uppercase text-[10px] tracking-widest">CANCELAR</button>
-                <button onclick="executarSyncMel()" class="h-14 bg-[#E8A020] hover:opacity-90 text-white font-black rounded-2xl uppercase text-[10px] tracking-widest shadow-lg">SIM, ATUALIZAR</button>
+                <button onclick="fecharConfirmSync()" class="h-12 bg-slate-100 hover:bg-slate-200 text-slate-600 font-black rounded-2xl uppercase text-[10px] tracking-widest">CANCELAR</button>
+                <button onclick="executarSync()" class="h-12 bg-primary hover:opacity-90 text-white font-black rounded-2xl uppercase text-[10px] tracking-widest shadow-lg">SIM, ATUALIZAR</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal Resultado Sync -->
+    <div id="modal-sync-result" class="fixed inset-0 bg-slate-900/60 z-[80] hidden opacity-0 transition-all p-4 backdrop-blur-md flex items-center justify-center">
+        <div class="bg-white w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl p-6 flex flex-col gap-4 max-h-[85vh]">
+            <div class="flex justify-between items-center">
+                <h3 class="font-black text-slate-900 tracking-tight uppercase text-sm">RESULTADO DA SINCRONIZAÇÃO</h3>
+                <button onclick="fecharSyncResult()" class="w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="sync-result-summary"></div>
+            <div id="sync-new-items" class="overflow-y-auto"></div>
+            <button onclick="fecharSyncResult()" class="w-full h-12 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black rounded-2xl uppercase text-[10px] tracking-widest transition-all">FECHAR</button>
         </div>
     </div>
 

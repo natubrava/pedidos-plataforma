@@ -1,4 +1,5 @@
         const CSV_URL = "https://docs.google.com/spreadsheets/d/10m3VsEwqsMYI5UfSxxa1tL208BYxBczlrstr4T-HJJI/export?format=csv&gid=711985533";
+        const EDICAO_CSV_URL = "https://docs.google.com/spreadsheets/d/10m3VsEwqsMYI5UfSxxa1tL208BYxBczlrstr4T-HJJI/export?format=csv&gid=1274849389";
         const CLOUDINARY_BASE = "https://res.cloudinary.com/dzjpj67xw/image/upload/w_200,h_200,c_fit,q_auto,f_auto/";
         
         // --- CONSTANTES DE BANCO DE DADOS (SUPABASE) ---
@@ -60,7 +61,7 @@
                     header: false,
                     complete: (results) => {
                         const rawData = results.data;
-                        // Mapeamento: [0]=Código | [2]=Nome | [4]=Custo | [5]=Venda | [6]=Imagem
+                        // Mapeamento: [0]=Código | [2]=Nome | [4]=Custo | [5]=Venda | [6]=Data (No Makrobom antigo era Img)
                         uniplusCatalog = rawData.slice(1)
                             .filter(row => row[2]) // Precisa ter nome
                             .map(row => ({
@@ -68,7 +69,7 @@
                                 name: row[2],
                                 cost: parseFloat(row[4]?.replace(',', '.')) || 0,
                                 sale: parseFloat(row[5]?.replace(',', '.')) || 0,
-                                img: row[6] || ''
+                                img: (row[6] && !row[6].includes('/')) ? row[6] : '' // Previne que Datas quebrem a imagem
                             }));
                         
                         localStorage.setItem(cacheKey, JSON.stringify(uniplusCatalog));
@@ -120,8 +121,8 @@
             document.getElementById('fornecedor-nome').innerText = fornecedorAtivo.nome;
             document.getElementById('label-icone').innerText = fornecedorAtivo.icone;
             
-            // Mostrar Botão de Sync apenas para o Mel
-            document.getElementById('sync-btn').style.display = (slug === 'meljc') ? 'flex' : 'none';
+            // Mostrar Botão de Sync apenas para fornecedores com filtro_planilha configurado
+            document.getElementById('sync-btn').style.display = (fornecedorAtivo.filtro_planilha) ? 'flex' : 'none';
 
             await carregarProdutos(slug);
         }
@@ -144,29 +145,35 @@
                 const active = qtd > 0;
                 
                 let imgHtml = '';
-                if (p.img && p.img.length > 5) {
-                    imgHtml = `<img src="${p.img.startsWith('http') ? p.img : CLOUDINARY_BASE + p.img}" class="w-full h-full object-contain ${active ? '' : 'grayscale opacity-70'}">`;
+                // Renderização: URL completa > Emoji > Fallback
+                if (p.img && p.img.startsWith('http')) {
+                    imgHtml = `
+                        <img src="${p.img}" class="w-full h-full object-contain drop-shadow-sm ${active ? '' : 'grayscale opacity-70'}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <span class="text-lg items-center justify-center ${active ? '' : 'opacity-40 grayscale'}" style="display: none;">${getFallbackEmoji(p.nome)}</span>
+                    `;
                 } else if (p.img === 'BALDE') {
-                    imgHtml = `<span class="text-xl">🪣</span>`;
+                    imgHtml = `<span class="text-lg flex items-center justify-center">🪣</span>`;
+                } else if (p.img && !(/^\d+$/.test(p.img)) && p.img.length <= 5) {
+                    imgHtml = `<span class="text-lg flex items-center justify-center ${active ? '' : 'opacity-40 grayscale'}">${p.img}</span>`;
                 } else {
-                    imgHtml = `<span class="text-xl ${active ? '' : 'opacity-40 grayscale'}">${getFallbackEmoji(p.nome)}</span>`;
+                    imgHtml = `<span class="text-lg flex items-center justify-center ${active ? '' : 'opacity-40 grayscale'}">${getFallbackEmoji(p.nome)}</span>`;
                 }
 
                 lista.insertAdjacentHTML('beforeend', `
-                    <div class="premium-card flex items-center h-20 px-4 transition-all ${active ? 'active-item' : ''}" data-id="${p.id}">
-                        <div class="drag-handle w-6 text-slate-300 cursor-grab flex justify-center shrink-0 opacity-0 group-hover:opacity-100"><i class="fa-solid fa-grip-vertical"></i></div>
-                        <div class="w-12 h-12 bg-white rounded-2xl mx-3 flex items-center justify-center shrink-0 overflow-hidden shadow-sm border border-slate-100">${imgHtml}</div>
-                        <div class="flex-1 min-w-0 pr-4">
-                            <h3 class="text-[13px] font-black tracking-tight text-inherit truncate leading-tight">${p.nome}</h3>
-                            <div class="flex items-center gap-3 mt-1">
-                                <span class="text-[10px] font-black text-primary uppercase tracking-widest">${formatMoeda(p.venda)}</span>
-                                <span class="text-[9px] font-bold text-slate-400 opacity-60 uppercase">${formatMoeda(p.custo)} un</span>
+                    <div class="premium-card flex items-center h-14 px-3 transition-all ${active ? 'active-item' : ''}" data-id="${p.id}">
+                        <div class="drag-handle w-4 text-slate-300 cursor-grab flex justify-center shrink-0 opacity-0 group-hover:opacity-100"><i class="fa-solid fa-grip-vertical text-[10px]"></i></div>
+                        <div class="w-9 h-9 bg-white rounded-xl mx-2 flex items-center justify-center shrink-0 overflow-hidden shadow-sm border border-slate-100">${imgHtml}</div>
+                        <div class="flex-1 min-w-0 pr-2">
+                            <h3 class="text-[11px] font-black tracking-tight text-inherit truncate leading-tight">${p.nome}</h3>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[9px] font-black text-primary uppercase tracking-widest">${formatMoeda(p.venda)}</span>
+                                <span class="text-[8px] font-bold text-slate-400 opacity-60 uppercase">${formatMoeda(p.custo)} un</span>
                             </div>
                         </div>
-                        <div class="flex items-center bg-slate-100/50 rounded-2xl p-1 gap-1 border border-slate-200/50">
-                            <button onclick="alterarQtd(${p.id}, -1)" class="w-8 h-8 rounded-xl bg-white shadow-sm text-red-500 hover:bg-red-50 flex items-center justify-center transition-all"><i class="fa-solid fa-minus text-[10px]"></i></button>
-                            <span class="w-8 text-center text-xs font-black" id="input-${p.id}">${qtd}</span>
-                            <button onclick="alterarQtd(${p.id}, 1)" class="w-8 h-8 rounded-xl bg-white shadow-sm text-green-600 hover:bg-green-50 flex items-center justify-center transition-all"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                        <div class="flex items-center bg-slate-100/50 rounded-xl p-0.5 gap-0.5 border border-slate-200/50">
+                            <button onclick="alterarQtd(${p.id}, -1)" class="w-7 h-7 rounded-lg bg-white shadow-sm text-red-500 hover:bg-red-50 flex items-center justify-center transition-all"><i class="fa-solid fa-minus text-[9px]"></i></button>
+                            <span class="w-7 text-center text-[11px] font-black" id="input-${p.id}">${qtd}</span>
+                            <button onclick="alterarQtd(${p.id}, 1)" class="w-7 h-7 rounded-lg bg-white shadow-sm text-green-600 hover:bg-green-50 flex items-center justify-center transition-all"><i class="fa-solid fa-plus text-[9px]"></i></button>
                         </div>
                     </div>
                 `);
@@ -301,8 +308,10 @@
             fecharNovoItemSearch();
         }
 
-        // --- SINCRONIZAÇÃO DO MEL ---
-        function confirmarSyncMel() {
+        // --- SINCRONIZAÇÃO UNIVERSAL ---
+        function confirmarSync() {
+            document.getElementById('sync-confirm-title').innerText = `SINCRONIZAR ${fornecedorAtivo.nome.toUpperCase()}?`;
+            document.getElementById('sync-confirm-desc').innerText = `Atualizar preços e buscar novos produtos de ${fornecedorAtivo.nome} na planilha Uniplus.`;
             const m = document.getElementById('modal-confirm-sync');
             m.classList.remove('hidden');
             setTimeout(() => m.classList.remove('opacity-0'), 10);
@@ -314,42 +323,172 @@
             setTimeout(() => m.classList.add('hidden'), 300);
         }
 
-        async function executarSyncMel() {
+        // --- RESULTADO DO SYNC ---
+        function mostrarResultadoSync(updatedCount, unmatched, newItems, edicaoMap) {
+            let summaryHtml = `<div class="text-center mb-4">
+                <div class="w-14 h-14 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3"><i class="fa-solid fa-check"></i></div>
+                <p class="text-sm font-bold text-slate-700">${updatedCount} produto(s) atualizado(s)</p>`;
+            if (unmatched.length > 0) {
+                summaryHtml += `<p class="text-[10px] text-amber-500 font-bold mt-1">${unmatched.length} item(ns) não sincronizado(s)</p>`;
+            }
+            summaryHtml += `</div>`;
+            document.getElementById('sync-result-summary').innerHTML = summaryHtml;
+
+            let newHtml = '';
+            if (newItems.length > 0) {
+                newHtml = `<div class="border-t border-slate-100 pt-4 mt-2">
+                    <h4 class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ${newItems.length} NOVO(S) ITEM(NS) NA PLANILHA
+                    </h4>
+                    <div class="space-y-2 max-h-[40vh] overflow-y-auto pr-1">`;
+                newItems.forEach(item => {
+                    newHtml += `
+                        <div class="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl" data-sync-code="${item.code}">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[11px] font-black text-slate-800 truncate">${item.name}</p>
+                                <p class="text-[9px] text-slate-500 font-bold">Custo: ${formatMoeda(item.cost)} | Venda: ${formatMoeda(item.sale)} | Cód: <span class="text-primary">${item.code}</span></p>
+                            </div>
+                            <button onclick="adicionarItemSync('${item.code}', this)" class="shrink-0 bg-amber-500 hover:bg-amber-600 text-white text-[9px] font-black px-3 h-8 rounded-lg uppercase tracking-wider transition-all active:scale-95">
+                                <i class="fa-solid fa-plus mr-1"></i>ADD
+                            </button>
+                        </div>`;
+                });
+                newHtml += `</div></div>`;
+            }
+            document.getElementById('sync-new-items').innerHTML = newHtml;
+
+            // Armazenar para referência das funções de ADD
+            window._syncNewItems = newItems;
+            window._syncEdicaoMap = edicaoMap;
+
+            const modal = document.getElementById('modal-sync-result');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function fecharSyncResult() {
+            const m = document.getElementById('modal-sync-result');
+            m.classList.add('opacity-0');
+            setTimeout(() => m.classList.add('hidden'), 300);
+        }
+
+        async function adicionarItemSync(code, btnEl) {
+            const item = (window._syncNewItems || []).find(i => i.code === code);
+            if (!item) return;
+
+            btnEl.innerHTML = '<i class="fa-solid fa-sync fa-spin"></i>';
+            btnEl.disabled = true;
+
+            const imgUrl = (window._syncEdicaoMap || {})[code] || '';
+            const maxOrdem = produtos.length > 0 ? Math.max(...produtos.map(p => p.ordem || 0)) + 1 : 1;
+            
+            // Remove o texto entre parênteses no final do nome (ex: "(MAKROBOM)")
+            const nomeClean = item.name.replace(/\s*\([^)]*\)\s*$/, '').trim().toUpperCase();
+
+            const newProd = {
+                fornecedor_slug: fornecedorAtivo.slug,
+                nome: nomeClean,
+                custo: item.cost,
+                venda: item.sale,
+                img: imgUrl || '📦',
+                codigo_uniplus: code,
+                ordem: maxOrdem,
+                ativo: true
+            };
+
+            const { error } = await _supabase.from('produtos').insert([newProd]);
+            if (error) { 
+                alert('Erro ao adicionar: ' + error.message); 
+                btnEl.innerHTML = '<i class="fa-solid fa-plus mr-1"></i>ADD';
+                btnEl.disabled = false;
+                return; 
+            }
+
+            // Feedback visual: trocar card para verde
+            const itemDiv = btnEl.closest('[data-sync-code]');
+            itemDiv.classList.remove('bg-amber-50', 'border-amber-200');
+            itemDiv.classList.add('bg-green-50', 'border-green-200');
+            btnEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+            btnEl.classList.remove('bg-amber-500', 'hover:bg-amber-600');
+            btnEl.classList.add('bg-green-500');
+
+            await carregarProdutos(fornecedorAtivo.slug);
+        }
+
+        async function executarSync() {
             const btn = document.querySelector('#modal-confirm-sync button:last-child');
             btn.innerHTML = '<i class="fa-solid fa-sync fa-spin"></i> SINCRONIZANDO...';
             btn.disabled = true;
 
+            const slug = fornecedorAtivo.slug;
+            const filtro = normalize(fornecedorAtivo.filtro_planilha || '');
+
             try {
-                // Pega os produtos atuais do Mel que têm codigo_uniplus
-                const { data: localProds, error } = await _supabase.from('produtos').select('*').eq('fornecedor_slug', 'meljc').eq('ativo', true);
+                // 1. Produtos da plataforma (Supabase)
+                const { data: localProds, error } = await _supabase.from('produtos').select('*').eq('fornecedor_slug', slug).eq('ativo', true);
                 if (error) throw error;
 
-                const updates = [];
-                localProds.forEach(lp => {
-                    // Tenta achar na planilha por código (prioridade) ou nome normalizado
-                    const match = uniplusCatalog.find(c => c.code === lp.codigo_uniplus) || 
-                                  uniplusCatalog.find(c => normalize(c.name) === normalize(lp.nome));
+                // 2. Carregar aba EDICAO para imagens Cloudinary (SKU → URL_FOTO)
+                let edicaoMap = {};
+                try {
+                    const edicaoResp = await fetch(EDICAO_CSV_URL);
+                    const edicaoText = await edicaoResp.text();
+                    Papa.parse(edicaoText, {
+                        header: false,
+                        complete: (res) => {
+                            res.data.slice(1).forEach(row => {
+                                const sku = row[0]?.trim();
+                                const urlFoto = row[6]?.trim();
+                                if (sku && urlFoto && urlFoto.startsWith('http')) {
+                                    edicaoMap[sku] = urlFoto;
+                                }
+                            });
+                        }
+                    });
+                } catch(e) { console.warn('Erro ao carregar EDICAO:', e); }
 
+                // 3. Filtrar catálogo Uniplus por fornecedor
+                const fornecedorItems = filtro ? uniplusCatalog.filter(c => normalize(c.name).includes(filtro)) : [];
+
+                // 4. Match produtos existentes por codigo_uniplus
+                const updates = [];
+                const unmatched = [];
+                localProds.forEach(lp => {
+                    if (!lp.codigo_uniplus) { unmatched.push(lp.nome + ' (sem código)'); return; }
+                    
+                    const match = fornecedorItems.find(c => c.code === lp.codigo_uniplus) ||
+                                  uniplusCatalog.find(c => c.code === lp.codigo_uniplus);
+                    
                     if (match) {
+                        const imgUrl = edicaoMap[match.code] || '';
                         updates.push({
-                            id: lp.id,
+                            ...lp,
+                            fornecedor_slug: slug,
                             custo: match.cost,
                             venda: match.sale,
-                            img: match.img || lp.img,
-                            codigo_uniplus: match.code
+                            img: imgUrl || (lp.img && lp.img.startsWith('http') ? lp.img : '') || lp.img || '📦',
+                            codigo_uniplus: match.code,
+                            updated_at: new Date().toISOString()
                         });
+                    } else {
+                        unmatched.push(lp.nome);
                     }
                 });
 
+                // 5. Encontrar NOVOS itens (na planilha, mas NÃO na plataforma)
+                const existingCodes = new Set(localProds.map(p => p.codigo_uniplus).filter(Boolean));
+                const newItems = fornecedorItems.filter(c => !existingCodes.has(c.code));
+
+                // 6. Salvar updates no Supabase
                 if (updates.length > 0) {
                     const { error: upErr } = await _supabase.from('produtos').upsert(updates);
                     if (upErr) throw upErr;
-                    alert(`✅ ${updates.length} produtos atualizados com sucesso!`);
-                } else {
-                    alert("Nenhum produto correspondente encontrado na planilha catálogo.");
                 }
 
-                await carregarProdutos('meljc');
+                // 7. Mostrar modal de resultado
+                mostrarResultadoSync(updates.length, unmatched, newItems, edicaoMap);
+
+                await carregarProdutos(slug);
                 fecharConfirmSync();
             } catch (e) {
                 console.error(e);
@@ -493,9 +632,11 @@
                 animation: 250, 
                 ghostClass: 'opacity-50',
                 onEnd: async () => { 
-                    const ups = Array.from(document.querySelectorAll('.premium-card')).map((el, i) => ({ id: parseInt(el.dataset.id), ordem: i + 1 })); 
-                    const { error } = await _supabase.from('produtos').upsert(ups); 
-                    if (error) console.error(error); 
+                    const cards = Array.from(document.querySelectorAll('.premium-card'));
+                    for (let i = 0; i < cards.length; i++) {
+                        const { error } = await _supabase.from('produtos').update({ ordem: i + 1 }).eq('id', parseInt(cards[i].dataset.id));
+                        if (error) console.error(error);
+                    }
                 } 
             }); 
         }
