@@ -150,6 +150,26 @@
             renderizarLista();
         }
 
+        // --- TABELA DE CONVERSÕES ---
+        const makrobomConversao = {
+            '341': { txt: 'cx com 4KG', fator: 4 },
+            '25': { txt: 'cx com 4KG', fator: 4 },
+            '264': { txt: 'cx com 1,5KG', fator: 1.5 },
+            '367': { txt: 'pcte com 2,1KG', fator: 2.1 },
+            '368': { txt: 'pcte com 2,1KG', fator: 2.1 },
+            '421': { txt: 'pcte com 2,1KG', fator: 2.1 },
+            '27': { txt: 'cx com 4KG', fator: 4 },
+            '26': { txt: 'cx com 4KG', fator: 4 }
+        };
+
+        function getConversion(p, slug) {
+            if (slug === 'muller') return { txt: 'pcte 500g', fator: 0.5 };
+            if (slug === 'makrobom' && p.codigo_uniplus && makrobomConversao[p.codigo_uniplus]) {
+                return makrobomConversao[p.codigo_uniplus];
+            }
+            return { txt: 'un', fator: 1 };
+        }
+
         // --- RENDERIZAR LISTA PRINCIPAL ---
         function renderizarLista() {
             const lista = document.getElementById('product-list');
@@ -175,6 +195,10 @@
                     imgHtml = `<span class="text-lg flex items-center justify-center ${active ? '' : 'opacity-40 grayscale'}">${getFallbackEmoji(p.nome)}</span>`;
                 }
 
+                const conv = getConversion(p, fornecedorAtivo.slug);
+                const custoConvertido = (p.custo || 0) * conv.fator;
+                const vendaConvertida = (p.venda || 0) * conv.fator;
+
                 lista.insertAdjacentHTML('beforeend', `
                     <div class="premium-card flex items-center h-14 px-3 transition-all ${active ? 'active-item' : ''}" data-id="${p.id}">
                         <div class="drag-handle w-4 text-slate-300 cursor-grab flex justify-center shrink-0 opacity-0 group-hover:opacity-100"><i class="fa-solid fa-grip-vertical text-[10px]"></i></div>
@@ -182,8 +206,8 @@
                         <div class="flex-1 min-w-0 pr-2">
                             <h3 class="text-[11px] font-black tracking-tight text-inherit truncate leading-tight">${p.nome}</h3>
                             <div class="flex items-center gap-2 mt-1">
-                                <span class="bg-amber-100/50 border border-amber-200 text-amber-700 text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm">Custo: ${formatMoeda(fornecedorAtivo.slug === 'muller' ? (p.custo / 2) : p.custo)}</span>
-                                <span class="text-[8px] font-bold text-slate-400 opacity-60 uppercase">${formatMoeda(fornecedorAtivo.slug === 'muller' ? (p.venda / 2) : p.venda)} ${fornecedorAtivo.slug === 'muller' ? 'pcte 500g' : 'un'}</span>
+                                <span class="bg-amber-100/50 border border-amber-200 text-amber-700 text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm" title="Vendido em: ${conv.txt}">Custo: ${formatMoeda(custoConvertido)} ${conv.fator !== 1 ? `<span class="text-[7px] text-amber-600 ml-0.5">(${conv.txt})</span>` : ''}</span>
+                                <span class="text-[8px] font-bold text-slate-400 opacity-60 uppercase">${formatMoeda(vendaConvertida)} ${conv.txt}</span>
                                 ${p.codigo_uniplus ? (() => {
                                     const c = uniplusCatalog.find(u => u.code == p.codigo_uniplus);
                                     if(c) return `<span class="ml-auto text-[9px] ${c.stock > 0 ? 'text-green-500' : 'text-red-400'} font-black outline outline-1 outline-slate-200/50 px-1 rounded">Estoque: ${c.stock}</span>`;
@@ -224,8 +248,9 @@
             const car = carrinhoGlobal[fornecedorAtivo.slug] || {};
             produtos.forEach(p => {
                 const q = car[p.id] || 0;
-                const c = fornecedorAtivo.slug === 'muller' ? (p.custo || 0) / 2 : (p.custo || 0);
-                const v = fornecedorAtivo.slug === 'muller' ? (p.venda || 0) / 2 : (p.venda || 0);
+                const conv = getConversion(p, fornecedorAtivo.slug);
+                const c = (p.custo || 0) * conv.fator;
+                const v = (p.venda || 0) * conv.fator;
                 tc += c * q; 
                 tl += (v - c) * q;
                 if (q > 0) it++;
@@ -243,14 +268,11 @@
             produtos.forEach(p => { 
                 const q = car[p.id] || 0; 
                 if (q > 0) { 
-                    const c = fornecedorAtivo.slug === 'muller' ? (p.custo || 0) / 2 : (p.custo || 0);
+                    const conv = getConversion(p, fornecedorAtivo.slug);
+                    const c = (p.custo || 0) * conv.fator;
                     const s = c * q; 
                     tp += s; 
-                    if (fornecedorAtivo.slug === 'muller') {
-                        ip.push(`▪️ *${q.toString().padStart(2, '0')} pctes 500gr* ${p.nome} = *${formatMoeda(s)}*`); 
-                    } else {
-                        ip.push(`▪️ *${q}x* ${p.nome} = *${formatMoeda(s)}*`); 
-                    }
+                    ip.push(`▪️ *${q.toString().padStart(2, '0')} ${conv.txt}* ${p.nome} = *${formatMoeda(s)}*`); 
                 } 
             });
             if (ip.length === 0) return;
@@ -287,18 +309,22 @@
                 }).slice(0, 5);
 
                 if (filtered.length > 0) {
-                    dd.innerHTML = filtered.map(r => `
+                    dd.innerHTML = filtered.map(r => {
+                        const conv = getConversion({ codigo_uniplus: r.item.code }, fornecedorAtivo.slug);
+                        const custoConv = r.item.cost * conv.fator;
+                        const vendaConv = r.item.sale * conv.fator;
+                        return `
                         <div class="fuzzy-item" onclick="selecionarParaAdd(${JSON.stringify(r.item).replace(/"/g, '&quot;')})">
                             <div class="text-[11px] font-black text-slate-800">${r.item.name}</div>
                             <div class="flex items-center gap-2 mt-1">
-                                <span class="bg-amber-100/50 border border-amber-200 text-amber-700 text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">Custo: ${formatMoeda(r.item.cost)}</span>
-                                <span class="text-slate-400 text-[9px] font-semibold">Venda: ${formatMoeda(r.item.sale)}</span>
+                                <span class="bg-amber-100/50 border border-amber-200 text-amber-700 text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm" title="Vendido em: ${conv.txt}">Custo: ${formatMoeda(custoConv)} ${conv.fator !== 1 ? `<span class="text-[8px] text-amber-600 ml-0.5">(${conv.txt})</span>` : ''}</span>
+                                <span class="text-slate-400 text-[9px] font-semibold">Venda: ${formatMoeda(vendaConv)} ${conv.txt}</span>
                             </div>
                             <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">
                                 Estoque: <span class="${r.item.stock > 0 ? 'text-green-600' : 'text-red-500'} font-black">${r.item.stock}</span> • Cód: ${r.item.code}
                             </div>
-                        </div>
-                    `).join('');
+                        </div>`;
+                    }).join('');
                     dd.style.display = 'block';
                 } else {
                     dd.innerHTML = '<div class="p-4 text-[10px] text-slate-400 font-black uppercase text-center">Nenhum resultado</div>';
@@ -312,7 +338,9 @@
             document.getElementById('search-results-dropdown').style.display = 'none';
             document.getElementById('uniplus-search-input').value = item.name;
             document.getElementById('prev-nome').innerText = item.name;
-            document.getElementById('prev-custo').innerText = formatMoeda(item.cost);
+            const conv = getConversion({ codigo_uniplus: item.code }, fornecedorAtivo.slug);
+            const custoConv = item.cost * conv.fator;
+            document.getElementById('prev-custo').innerHTML = `${formatMoeda(custoConv)} <span class="text-[9px]">/ ${conv.txt}</span>`;
             document.getElementById('prev-cod').innerText = item.code;
             document.getElementById('selected-preview').classList.remove('hidden');
             document.getElementById('selected-empty').classList.add('hidden');
@@ -638,14 +666,15 @@
             produtos.forEach(p => { 
                 const q = c[p.id] || 0; 
                 if (q > 0) { 
-                    const custoUnid = fornecedorAtivo.slug === 'muller' ? (p.custo || 0) / 2 : (p.custo || 0);
-                    const s = custoUnid * q; t += s; 
-                    const rotuloUnid = fornecedorAtivo.slug === 'muller' ? 'pcte 500g' : 'un';
+                    const conv = getConversion(p, fornecedorAtivo.slug);
+                    const custoConvertido = (p.custo || 0) * conv.fator;
+                    const s = custoConvertido * q; t += s; 
+                    
                     l.insertAdjacentHTML('beforeend', `
                         <div class="bg-white p-4 rounded-2xl border border-slate-100 mb-2 flex justify-between items-center shadow-sm">
                             <div class="flex-1">
                                 <h4 class="text-xs font-black text-slate-800 uppercase">${p.nome}</h4>
-                                <div class="text-[10px] text-slate-400 font-bold mt-0.5">${formatMoeda(custoUnid)} /${rotuloUnid}</div>
+                                <div class="text-[10px] text-slate-400 font-bold mt-0.5">${formatMoeda(custoConvertido)} /${conv.txt}</div>
                             </div>
                             <div class="text-right flex flex-col items-end gap-2">
                                 <span class="text-sm font-black text-slate-900">${formatMoeda(s)}</span>
