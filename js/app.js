@@ -204,13 +204,16 @@
                         <div class="drag-handle w-4 text-slate-300 cursor-grab flex justify-center shrink-0 opacity-0 group-hover:opacity-100"><i class="fa-solid fa-grip-vertical text-[10px]"></i></div>
                         <div class="w-9 h-9 bg-white rounded-xl mx-2 flex items-center justify-center shrink-0 overflow-hidden shadow-sm border border-slate-100">${imgHtml}</div>
                         <div class="flex-1 min-w-0 pr-2">
-                            <h3 class="text-[11px] font-black tracking-tight text-inherit truncate leading-tight">${p.nome}</h3>
+                            <div class="flex items-center gap-1.5 mb-0.5 overflow-hidden">
+                                <h3 class="text-[11px] font-black tracking-tight text-inherit truncate leading-tight">${p.nome}</h3>
+                                ${conv.fator !== 1 ? `<span class="bg-primary/10 text-primary border border-primary/20 text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm uppercase shrink-0 whitespace-nowrap whitespace-nowrap shrink-0 overflow-hidden text-clip flex items-center justify-center pt-0.5" title="A cada '+1' você compra/paga 1 ${conv.txt}"><i class="fa-solid fa-box-open mr-1 opacity-70"></i> 1 ${conv.txt}</span>` : ''}
+                            </div>
                             <div class="flex items-center gap-2 mt-1">
-                                <span class="bg-amber-100/50 border border-amber-200 text-amber-700 text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm" title="Vendido em: ${conv.txt}">Custo: ${formatMoeda(custoConvertido)} ${conv.fator !== 1 ? `<span class="text-[7px] text-amber-600 ml-0.5">(${conv.txt})</span>` : ''}</span>
-                                <span class="text-[8px] font-bold text-slate-400 opacity-60 uppercase">${formatMoeda(vendaConvertida)} ${conv.txt}</span>
+                                <span class="bg-amber-100/50 border border-amber-200 text-amber-700 text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm">Custo: ${formatMoeda(custoConvertido)}</span>
+                                <span class="text-[8px] font-bold text-slate-400 opacity-60 uppercase">Venda: ${formatMoeda(vendaConvertida)} ${conv.txt.split(' ')[0]}</span>
                                 ${p.codigo_uniplus ? (() => {
                                     const c = uniplusCatalog.find(u => u.code == p.codigo_uniplus);
-                                    if(c) return `<span class="ml-auto text-[9px] ${c.stock > 0 ? 'text-green-500' : 'text-red-400'} font-black outline outline-1 outline-slate-200/50 px-1 rounded">Estoque: ${c.stock}</span>`;
+                                    if(c) return `<span class="ml-auto text-[9px] ${c.stock > 0 ? 'text-green-500' : 'text-red-400'} font-black outline outline-1 outline-slate-200/50 px-1 rounded truncate">Estoque: ${c.stock}</span>`;
                                     return '';
                                 })() : ''}
                             </div>
@@ -315,13 +318,16 @@
                         const vendaConv = r.item.sale * conv.fator;
                         return `
                         <div class="fuzzy-item" onclick="selecionarParaAdd(${JSON.stringify(r.item).replace(/"/g, '&quot;')})">
-                            <div class="text-[11px] font-black text-slate-800">${r.item.name}</div>
+                            <div class="flex items-center gap-1.5 overflow-hidden">
+                                <div class="text-[11px] font-black text-slate-800 truncate">${r.item.name}</div>
+                                ${conv.fator !== 1 ? `<span class="bg-primary/10 text-primary border border-primary/20 text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm uppercase shrink-0 whitespace-nowrap whitespace-nowrap shrink-0 overflow-hidden text-clip flex items-center justify-center pt-0.5" title="Vendido em ${conv.txt}"><i class="fa-solid fa-box-open mr-1 opacity-70"></i> 1 ${conv.txt}</span>` : ''}
+                            </div>
                             <div class="flex items-center gap-2 mt-1">
-                                <span class="bg-amber-100/50 border border-amber-200 text-amber-700 text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm" title="Vendido em: ${conv.txt}">Custo: ${formatMoeda(custoConv)} ${conv.fator !== 1 ? `<span class="text-[8px] text-amber-600 ml-0.5">(${conv.txt})</span>` : ''}</span>
-                                <span class="text-slate-400 text-[9px] font-semibold">Venda: ${formatMoeda(vendaConv)} ${conv.txt}</span>
+                                <span class="bg-amber-100/50 border border-amber-200 text-amber-700 text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">Custo: ${formatMoeda(custoConv)}</span>
+                                <span class="text-slate-400 text-[9px] font-semibold">Venda: ${formatMoeda(vendaConv)} ${conv.txt.split(' ')[0]}</span>
                             </div>
                             <div class="text-[9px] text-slate-400 font-bold uppercase mt-1">
-                                Estoque: <span class="${r.item.stock > 0 ? 'text-green-600' : 'text-red-500'} font-black">${r.item.stock}</span> • Cód: ${r.item.code}
+                                Estoque: <span class="${r.item.stock > 0 ? 'text-green-600' : 'text-red-500'} font-black outline outline-1 outline-slate-200/50 px-1 rounded truncate ml-0.5">${r.item.stock}</span> <span class="opacity-50 ml-1">• Cód: ${r.item.code}</span>
                             </div>
                         </div>`;
                     }).join('');
