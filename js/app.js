@@ -275,13 +275,13 @@
                     const c = (p.custo || 0) * conv.fator;
                     const s = c * q; 
                     tp += s; 
-                    ip.push(`▪️ *${q.toString().padStart(2, '0')} ${conv.txt}* ${p.nome} = *${formatMoeda(s)}*`); 
+                    ip.push(`- *${q.toString().padStart(2, '0')} ${conv.txt}* - ${p.nome} (${formatMoeda(c)}) = *${formatMoeda(s)}*`); 
                 } 
             });
             if (ip.length === 0) return;
 
             const msgHeader = (fornecedorAtivo.texto_whatsapp || "Segue meu pedido:") + `\n\n*FORNECEDOR: ${fornecedorAtivo.nome.toUpperCase()}*\n-----------------------------------\n`;
-            const msgFooter = `\n-----------------------------------\n📊 *TOTAL DO PEDIDO:* ${formatMoeda(tp)}\n\n_Enviado via NatuBrava Orders_`;
+            const msgFooter = `\n-----------------------------------\n*TOTAL DO PEDIDO:* ${formatMoeda(tp)}\n\n_Enviado via NatuBrava Orders_`;
             const msgTotal = msgHeader + ip.join('\n') + msgFooter;
 
             const { error } = await _supabase.from('pedidos').insert({ fornecedor_slug: fornecedorAtivo.slug, itens: car, total_custo: tp, enviado_whatsapp: true });
